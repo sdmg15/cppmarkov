@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+.idea/
+.vscode/
+cmake-build-debug/
+CMakeCache.txt
+build/
+bin/
+*.cbp
+cmake_install.cmake 
+CMakeFiles/
+graph_info.json

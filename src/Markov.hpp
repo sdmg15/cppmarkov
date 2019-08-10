@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #define START_TOKEN "^"
 #define END_TOKEN "$"
@@ -26,10 +27,10 @@ using NextState = std::string;
         int occurence;
 
         Occurence(){
-            occurence = 0;
+            occurence = 1;
         }
 
-        void operator++(int i){
+        void operator++(){
             ++occurence;
         }
 
@@ -44,11 +45,11 @@ using NextState = std::string;
 
     struct Chain {
 
-        std::map<Pair,Occurence> transitionMatrix; //
+        std::map<Pair,int> transitionMatrix; //
 
         int m_order; // The Order of the Markov Chain. 1-order , 2-order etc.
 
-        Chain(int order): m_order(order){}; 
+        Chain(int order);
 
         /**
          * @brief Returns the transition probability between two states
@@ -60,7 +61,7 @@ using NextState = std::string;
          * @brief add a new String to the chain
          */
 
-        auto add(std::string&& s) -> Ngram;
+        auto add(std::string&& s) -> void;
 
         /**
          * @brief Create a new pair according to the order
@@ -70,24 +71,24 @@ using NextState = std::string;
 
     };
 
+    auto operator<(const Pair& lhs, const Pair& rhs) -> bool;
+
     /**
      * Helper to split string into vector
      */
-    auto split(std::string str,char delimiter) -> std::vector<std::string> {
+    auto split(std::string str,char delimiter) -> std::vector<std::string>;
 
-        std::vector<std::string> internal;
-        std::stringstream ss(str); // Turn the string into a stream.
-        std::string tok;
-        
-        while(getline(ss, tok, delimiter)) {
-            internal.push_back(tok);
-        }
-        
-        return internal;
-    }
-    
+    /**
+     * @brief take two Ngram and tell whether they're equal or not
+     * @return bool
+     */
 
+    auto compare(const Ngram& lhs, const Ngram& rhs) -> bool;
 
+    /**
+     * @brief Join the Ngram vector into string
+     */
+    auto join(Ngram& n) -> std::string;
 };
 
 

@@ -1,24 +1,26 @@
 #include "Markov.hpp"
 
 
-auto Markov::Chain::add(std::string&& str) -> Markov::Ngram {
+Markov::Chain::Chain(int order): m_order(order){}
+
+auto Markov::Chain::add(std::string&& str) -> void {
     // I am sam. I am an Engineer. I like Coding.
     
     auto startTokens = std::string(START_TOKEN, m_order);
     auto endTokens   = std::string(END_TOKEN,m_order);
-    auto str = startTokens + str + endTokens;
+    str = startTokens +" " +str +" " +endTokens;
 
-    // Extract N-gram from the given string 
-    auto strVec = split(str,' ');
+    //Extract N-gram from the given string 
+    auto strVec = Markov::split(str,' ');
 
     std::vector<Pair> pairs = makePairs( std::move(strVec), m_order ); 
-    
+
     for(const auto& aPair : pairs ){
 
-        if( transitionMatrix.count( aPair ) == 1){
+        if( transitionMatrix.count( aPair ) ) {
             transitionMatrix[aPair]++; 
         }else{
-            transitionMatrix.insert( { aPair,Occurence() } ); 
+            transitionMatrix.insert( { aPair, 1 } ); 
         }
     }
 }
@@ -27,17 +29,18 @@ auto Markov::Chain::makePairs(std::vector<std::string>&& strVec,int order) -> st
 
     std::vector<Pair> pairList; 
 
-    for(int i(0); i < strVec.size();++i){
+    for(int i(1); i < strVec.size()-order;++i){
         
         Ngram currState; 
         NextState ns; 
 
-        for( int j(i); j< order; ++j){
-            currState.push_back(strVec.at(j));
-            ns = strVec.at( i );
+        ns = strVec.at( i+order );
 
-            pairList.push_back( { currState,ns } ); 
+        for( int j(i); j< i+order; ++j){
+            currState.push_back(strVec.at(j)); 
         }
+
+        pairList.push_back( { currState,ns } );
     }
 
     return pairList;
@@ -49,19 +52,25 @@ auto Markov::Chain::transitionProbability(Markov::NextState ns, Markov::Ngram cu
         throw 1;
     }
     
-    int frequenceOfng{0}, sumOther{0};
+    int frequenceOfng{0}, sumOther{1};
 
-    if( transitionMatrix.count( {currentState,ns} ) == 1){
+    Pair pairToLookFor{currentState,ns};
 
-        frequenceOfng = transitionMatrix[ {currentState,ns} ] ; 
+    if( transitionMatrix.count( pairToLookFor ) ){
+
+        frequenceOfng = transitionMatrix[ pairToLookFor ] ;
         // Divide by the currentState to any other.
 
-        for(const auto& [key,val] : transitionMatrix){
-            if( key.currentState == currentState){
+        for(auto& [key,val] : transitionMatrix){
+
+            if( compare(key.currentState,currentState) ){
                 ++sumOther;
             }
         }
+    }else{
+        std::cout << "The transition was not found "<< pairToLookFor.currentState.back() << " " << pairToLookFor.nextState <<"\n";
+        return 0;
     }
 
-    return frequenceOfng/sumOther; 
+    return (frequenceOfng + 0.0)/(sumOther+0.0); 
 }

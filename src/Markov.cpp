@@ -74,3 +74,49 @@ auto Markov::Chain::transitionProbability(Markov::NextState ns, Markov::Ngram cu
 
     return (frequenceOfng + 0.0)/(sumOther+0.0); 
 }
+
+
+auto Markov::split(std::string str,char delimiter ) -> std::vector<std::string>{
+
+    std::vector<std::string> internal;
+    std::stringstream ss(str); // Turn the string into a stream.
+    std::string tok;
+    
+    while(getline(ss, tok, delimiter)) {
+        internal.push_back(tok);
+    }
+    
+    return internal;
+}
+
+auto Markov::operator<(const Markov::Pair& lhs, const Markov::Pair& rhs) -> bool {
+
+    return !(compare(lhs.currentState,rhs.currentState) && lhs.nextState == rhs.nextState) ;
+}
+
+auto Markov::compare(const Markov::Ngram& lhs,const Markov::Ngram& rhs) -> bool {
+    bool areOfEqualWord = true;
+
+    if( lhs.size() != rhs.size() ) {
+        return false;   
+    }
+
+    for(int i(0); i< rhs.size() ; ++i){
+        if( lhs.at(i) != rhs.at(i) ) {
+            areOfEqualWord = false;
+            break;
+        }
+    }
+
+    return areOfEqualWord;
+}
+
+auto Markov::join(Markov::Ngram& ngram) -> std::string {
+
+    std::string res;
+
+    for(auto& str: ngram){
+        res+=str +" ";
+    }
+    return res;
+}

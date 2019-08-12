@@ -46,15 +46,15 @@ auto Markov::Chain::makePairs(std::vector<std::string>&& strVec,int order) -> st
     return pairList;
 }
 
-auto Markov::Chain::transitionProbability(Markov::NextState ns, Markov::Ngram currentState) -> double {
+auto Markov::Chain::transitionProbability(const Markov::NextState& ns, const Markov::Ngram& currentState) -> double {
     
     if( currentState.size() != m_order){
         throw 1;
     }
     
-    int frequenceOfng{0}, sumOther{1};
+    int frequenceOfng{0}, sumOther{0};
 
-    Pair pairToLookFor{currentState,ns};
+    Pair pairToLookFor{ currentState,ns };
 
     if( transitionMatrix.count( pairToLookFor ) ){
 
@@ -63,16 +63,17 @@ auto Markov::Chain::transitionProbability(Markov::NextState ns, Markov::Ngram cu
 
         for(auto& [key,val] : transitionMatrix){
 
-            if( compare(key.currentState,currentState) ){
-                ++sumOther;
+            if( compare(key.first,currentState) ){
+                ++sumOther; 
             }
         }
+
     }else{
-        std::cout << "The transition was not found "<< pairToLookFor.currentState.back() << " " << pairToLookFor.nextState <<"\n";
+        std::cout << "The transition was not found "<< pairToLookFor.first.back() << " " << pairToLookFor.second <<"\n";
         return 0;
     }
 
-    return (frequenceOfng + 0.0)/(sumOther+0.0); 
+    return (frequenceOfng + 0.0)/(sumOther+0.0);
 }
 
 
@@ -87,11 +88,6 @@ auto Markov::split(std::string str,char delimiter ) -> std::vector<std::string>{
     }
     
     return internal;
-}
-
-auto Markov::operator<(const Markov::Pair& lhs, const Markov::Pair& rhs) -> bool {
-
-    return !(compare(lhs.currentState,rhs.currentState) && lhs.nextState == rhs.nextState) ;
 }
 
 auto Markov::compare(const Markov::Ngram& lhs,const Markov::Ngram& rhs) -> bool {

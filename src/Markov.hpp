@@ -16,12 +16,8 @@ namespace Markov {
 //using SparseArray = std::map<std::string,int>;  // The int here is the probability from State i to State j 
 using Ngram = std::vector<std::string>;
 using NextState = std::string;
-//using Pair = std::pair<Ngram,NextState>;
+using Pair = std::pair<Ngram,NextState>;
 
-    struct Pair {
-        Ngram currentState;
-        NextState nextState;
-    };
 
     struct Occurence{
         int occurence;
@@ -49,13 +45,13 @@ using NextState = std::string;
 
         int m_order; // The Order of the Markov Chain. 1-order , 2-order etc.
 
-        Chain(int order);
+        explicit Chain(int order) ;
 
         /**
          * @brief Returns the transition probability between two states
          */
 
-        auto transitionProbability(NextState ns, Ngram ngram) -> double;
+        auto transitionProbability(const NextState& ns, const Ngram& ngram) -> double;
         
         /**
          * @brief add a new String to the chain

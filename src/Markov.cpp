@@ -64,7 +64,7 @@ auto Markov::Chain::transitionProbability(const Markov::NextState& ns, const Mar
         for(auto& [key,val] : transitionMatrix){
 
             if( compare(key.first,currentState) ){
-                ++sumOther; 
+                sumOther += val; 
             }
         }
 

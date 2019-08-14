@@ -73,7 +73,7 @@ auto Markov::Chain::transitionProbability(const Markov::NextState& ns, const Mar
         return 0;
     }
 
-    return (frequenceOfng + 0.0)/(sumOther+0.0);
+    return static_cast<double>(frequenceOfng) / static_cast<double>(sumOther); 
 }
 
 

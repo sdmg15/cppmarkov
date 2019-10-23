@@ -7,6 +7,8 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <random>
+#include <algorithm>
 
 #define START_TOKEN "^"
 #define END_TOKEN "$"
@@ -42,8 +44,12 @@ using Pair = std::pair<Ngram,NextState>;
     struct Chain {
 
         std::map<Pair,int> transitionMatrix; //
-
+        std::map<int,Pair> ipMap_; // index pair Map
+        bool computed_;
         int m_order; // The Order of the Markov Chain. 1-order , 2-order etc.
+        std::vector<double> probabilities_;
+
+        static int incr_;
 
         explicit Chain(int order) ;
 
@@ -64,8 +70,17 @@ using Pair = std::pair<Ngram,NextState>;
          */
 
         auto makePairs(std::vector<std::string>&& v,int order) -> std::vector<Pair>;
+         
+         /**
+         * @brief Generates new text based on an initial seed
+         */
 
+        auto generateWord(int length) -> std::string;
+
+        auto storeProbabilities() -> void ;
     };
+
+    
 
     auto operator<(const Pair& lhs, const Pair& rhs) -> bool;
 
@@ -84,8 +99,8 @@ using Pair = std::pair<Ngram,NextState>;
     /**
      * @brief Join the Ngram vector into string
      */
-    auto join(Ngram& n) -> std::string;
-};
+    auto join(Ngram& n) -> std::string; 
+}; // end namespace Markov
 
 
 #endif 

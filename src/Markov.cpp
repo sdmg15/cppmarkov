@@ -21,6 +21,7 @@ auto Markov::Chain::add(std::string&& str) -> void {
             transitionMatrix[aPair]++; 
         }else{
             transitionMatrix.insert( { aPair, 1 } ); 
+            ipMap_.insert( {incr_++, aPair} ); 
         }
     }
 }
@@ -35,7 +36,6 @@ auto Markov::Chain::makePairs(std::vector<std::string>&& strVec,int order) -> st
         NextState ns; 
 
         ns = strVec.at( i+order );
-
         for( int j(i); j< i+order; ++j){
             currState.push_back(strVec.at(j)); 
         }
@@ -70,12 +70,56 @@ auto Markov::Chain::transitionProbability(const Markov::NextState& ns, const Mar
 
     }else{
         std::cout << "The transition was not found "<< pairToLookFor.first.back() << " " << pairToLookFor.second <<"\n";
-        return 0;
+        return -1;
     }
 
     return static_cast<double>(frequenceOfng) / static_cast<double>(sumOther); 
 }
 
+
+auto Markov::Chain::storeProbabilities() -> void {
+    
+    if( ! computed_ ){
+        for(const auto& [k,v] : transitionMatrix) {
+            auto prob = transitionProbability(k.second,k.first);
+            probabilities_.push_back( prob );
+        }
+        computed_ = true;
+    }
+    return;
+}
+
+auto Markov::Chain::generateWord(int length) -> std::string {    
+    
+    this->storeProbabilities();
+
+    std::vector<double> v;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    for(double& c : probabilities_ ) {
+        v.push_back( c*100 );
+    }
+
+    std::discrete_distribution<> dist( v.begin(), v.end());
+
+    std::string res;
+
+    for(int n=0; n<length; ++n) {
+        auto r = ipMap_[dist(gen)]; 
+
+        auto s = std::string(r.second.c_str()) ;
+
+        if( "$" != s ){
+            res+=s;
+        }
+        if( "$" != r.first.front()){
+            res += " " + r.first.front() + " ";
+        }
+    }
+
+    return res;
+}
 
 auto Markov::split(std::string str,char delimiter ) -> std::vector<std::string>{
 
@@ -116,3 +160,5 @@ auto Markov::join(Markov::Ngram& ngram) -> std::string {
     }
     return res;
 }
+
+int Markov::Chain::incr_{0};
